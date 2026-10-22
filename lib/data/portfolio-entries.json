@@ -1,0 +1,190 @@
+[
+  {
+    "id": "project-wall-e",
+    "type": "system_ml",
+    "title": "Project Wall E",
+    "summary": "This is a Next.js project bootstrapped with create-next-app.",
+    "tech_tags": [
+      "TYPESCRIPT",
+      "JAVASCRIPT",
+      "CSS"
+    ],
+    "github_url": "https://github.com/anton-buen/project-wall-e",
+    "live_url": null,
+    "year": 2026
+  },
+  {
+    "id": "dw-etl-lab",
+    "type": "system_ml",
+    "title": "Dw Etl Lab",
+    "summary": "A Python project",
+    "tech_tags": [
+      "PYTHON",
+      "DOCKER"
+    ],
+    "github_url": "https://github.com/anton-buen/dw-etl-lab",
+    "live_url": null,
+    "year": 2026
+  },
+  {
+    "id": "project-yorme",
+    "type": "system_ml",
+    "title": "Project Yorme",
+    "summary": "> LGU-Grade Reinforcement Learning Decision Engine for Early Class Suspension Modeling in Metro Manila.",
+    "tech_tags": [
+      "TYPESCRIPT",
+      "PYTHON",
+      "CSS",
+      "HTML",
+      "DOCKER"
+    ],
+    "github_url": "https://github.com/anton-buen/project-yorme",
+    "live_url": "https://project-yorme.vercel.app",
+    "year": 2026
+  },
+  {
+    "id": "project-open-naur",
+    "type": "system_ml",
+    "title": "Project Open Naur",
+    "summary": "> Catch cross-domain architectural blast radius before shipping code.",
+    "tech_tags": [
+      "PYTHON",
+      "HTML"
+    ],
+    "github_url": "https://github.com/anton-buen/project-open-naur",
+    "live_url": null,
+    "year": 2026
+  },
+  {
+    "id": "project-mike-ross",
+    "type": "system_ml",
+    "title": "Project Mike Ross",
+    "summary": "A Python project",
+    "tech_tags": [
+      "PYTHON"
+    ],
+    "github_url": "https://github.com/anton-buen/project-mike-ross",
+    "live_url": null,
+    "year": 2026
+  },
+  {
+    "id": "project-naur",
+    "type": "system_ml",
+    "title": "Project Naur",
+    "summary": "> Agent-Driven Architectural Auditor & Ontological Linter",
+    "tech_tags": [
+      "PYTHON",
+      "HTML"
+    ],
+    "github_url": "https://github.com/anton-buen/Project-Naur",
+    "live_url": null,
+    "year": 2026
+  },
+  {
+    "id": "project-kelso",
+    "type": "system_ml",
+    "title": "Project Kelso",
+    "summary": "> \"Coordination is not an attribute of an individual part, but an emergent property of the system as a whole.\"",
+    "tech_tags": [
+      "TYPESCRIPT",
+      "HTML",
+      "CSS"
+    ],
+    "github_url": "https://github.com/anton-buen/project-kelso",
+    "live_url": "https://project-kelso.vercel.app",
+    "year": 2026
+  },
+  {
+    "id": "buenafe-flyrank",
+    "type": "system_ml",
+    "title": "Buenafe Flyrank",
+    "summary": "Applied Search Intelligence: Google Search Ranking & Discoverability",
+    "tech_tags": [
+      "PYTHON"
+    ],
+    "github_url": "https://github.com/anton-buen/buenafe-flyrank",
+    "live_url": null,
+    "year": 2026
+  },
+  {
+    "id": "buenafe-tata-genai",
+    "type": "system_ml",
+    "title": "Buenafe Tata Genai",
+    "summary": "This simulation is currently a work in progress. Unlike the completed JP Morgan Quant project, the Tata GenAI simulation is still being developed and refined. The focus here is on experimenting with GenAI‑powered approaches to data analytics, testing workflows, and building out the foundation for mo",
+    "tech_tags": [],
+    "github_url": "https://github.com/anton-buen/buenafe-tata-genai",
+    "live_url": null,
+    "year": 2026
+  },
+  {
+    "id": "pacific-ave-redesign",
+    "type": "system_ml",
+    "title": "Pacific Ave Redesign",
+    "summary": "A production-ready front-end refactoring and UI/UX modernization of the official web presence for Pacific Avelex, a high-density residential condormitel located along Taft Avenue, Manila.",
+    "tech_tags": [
+      "HTML",
+      "CSS",
+      "JAVASCRIPT"
+    ],
+    "github_url": "https://github.com/anton-buen/pacific-ave-redesign",
+    "live_url": null,
+    "year": 2025
+  },
+  {
+    "id": "buenafe-jpmorgan-quant",
+    "type": "system_ml",
+    "title": "Buenafe Jpmorgan Quant",
+    "summary": "Production-ready quantitative models developed for the JPMorgan Chase Quantitative Research Simulation. This repository contains algorithmic solutions for commodity contract pricing, credit risk modeling, dynamic programming for optimal credit score bucketing, and expected loss optimization engines.",
+    "tech_tags": [],
+    "github_url": "https://github.com/anton-buen/buenafe-jpmorgan-quant",
+    "live_url": null,
+    "year": 2026
+  },
+  {
+    "id": "buenafe-bcgx-datasci",
+    "type": "system_ml",
+    "title": "Buenafe Bcgx Datasci",
+    "summary": "A software project",
+    "tech_tags": [],
+    "github_url": "https://github.com/anton-buen/buenafe-bcgx-datasci",
+    "live_url": null,
+    "year": 2026
+  },
+  {
+    "id": "project-buen",
+    "type": "system_ml",
+    "title": "Project Buen",
+    "summary": "A voice-first, zero-friction task management system built on one rule:",
+    "tech_tags": [
+      "PYTHON"
+    ],
+    "github_url": "https://github.com/anton-buen/project-buen",
+    "live_url": null,
+    "year": 2026
+  },
+  {
+    "id": "cognitive-alignment-engine",
+    "type": "system_ml",
+    "title": "Cognitive Alignment Engine",
+    "summary": "Current Status: Archived / Legacy Prototype",
+    "tech_tags": [
+      "PYTHON"
+    ],
+    "github_url": "https://github.com/anton-buen/cognitive-alignment-engine",
+    "live_url": null,
+    "year": 2026
+  },
+  {
+    "id": "ics2609-2csc-group3-fap",
+    "type": "system_ml",
+    "title": "ICS2609_2CSC_GROUP3_FAP",
+    "summary": "A Java project",
+    "tech_tags": [
+      "JAVA",
+      "CSS"
+    ],
+    "github_url": "https://github.com/anton-buen/ICS2609_2CSC_GROUP3_FAP",
+    "live_url": null,
+    "year": 2026
+  }
+]

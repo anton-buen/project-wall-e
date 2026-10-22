@@ -7,7 +7,7 @@ export default function PixelRobot() {
   const [lockedEmotion, setLockedEmotion] = useState(false);
   const [isLaserOn, setIsLaserOn] = useState(false);
 
-  // 1. Listen for Text Input Emotions (Angry & Happy)
+  // 1. Listen for Text Input Emotions (Angry, Happy & Sleep)
   useEffect(() => {
     const handleEmotion = (e: any) => {
       const emotion = e.detail;
@@ -26,11 +26,16 @@ export default function PixelRobot() {
           setLockedEmotion(false);
           setFrame(isLaserOn ? 4 : 0);
         }, 3000);
+      } else if (emotion === 'sleep') {
+        // Sleep mode - show closed eyes continuously
+        if (!lockedEmotion && !isLaserOn) {
+          setFrame(3); // Use happy/closed eyes for sleeping
+        }
       }
     };
     window.addEventListener('ROBOT_EMOTION', handleEmotion);
     return () => window.removeEventListener('ROBOT_EMOTION', handleEmotion);
-  }, [isLaserOn]);
+  }, [isLaserOn, lockedEmotion]);
 
   // 2. Listen for Laser Pointer State
   useEffect(() => {

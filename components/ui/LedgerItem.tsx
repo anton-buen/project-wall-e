@@ -77,10 +77,7 @@ export default function LedgerItem({
   let translateClass = "translate-x-0";
   let bgClass = "bg-[#FAF9F6]";
 
-  if (isExpanded) {
-    // Hide resting state during breakout
-    translateClass = "translate-x-0 opacity-0 pointer-events-none";
-  } else if (distance === 0) {
+  if (distance === 0) {
     translateClass = "translate-x-[24px]"; // The finger is exactly on this tab
     bgClass = "bg-[#F4F2ED]";
   } else if (distance === 1) {
@@ -136,22 +133,17 @@ export default function LedgerItem({
         )}
       </button>
 
-      {/* STATE 2: Expanded (The Breakout Drawer with Physical Pull-Out) */}
-      {isExpanded && (
-        <div
-          ref={drawerRef}
-          className="absolute top-0 left-0 z-50 bg-[#FAF9F6] border border-[#1C1C1C] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
-          style={{
-            width: 'calc(100% + 48px)', // Breaks past the sidebar boundary
-            boxShadow: '4px 4px 0px #1C1C1C', // Hard tactile shadow
-            transform: 'translateX(0)', // Slide-in from left (starts at 0, CSS handles the physical feel)
-          }}
-        >
-          {/* 3px Solid Left Tab */}
-          <div className="absolute top-0 left-0 w-[3px] h-full bg-[#1C1C1C]" />
-
+      {/* STATE 2: Expanded (Accordion-style expansion that pushes items down) */}
+      <div
+        ref={drawerRef}
+        className={`
+          overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
+          ${isExpanded ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'}
+        `}
+      >
+        <div className="relative bg-[#F4F2ED] border-l-[3px] border-[#1C1C1C]">
           {/* Drawer Content - Better spacing and typography */}
-          <div className="px-12 pt-6 pb-10">
+          <div className="px-12 pt-8 pb-10">
             {/* Header Row */}
             <div className="flex items-baseline justify-between mb-4">
               <h3 className="font-serif text-[28px] leading-[1.2] text-[#1C1C1C]">
@@ -196,7 +188,7 @@ export default function LedgerItem({
             </button>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

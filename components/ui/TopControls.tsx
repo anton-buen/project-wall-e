@@ -24,41 +24,7 @@ export default function TopControls() {
 
   return (
     <div className="absolute top-10 right-10 z-20 flex gap-3">
-      {/* Laser Toggle - Tactile button with hover scale */}
-      <button
-        onClick={handleLaserToggle}
-        onMouseEnter={() => playSFX('hoverLink')}
-        className={`
-          group relative
-          flex items-center justify-center gap-2.5
-          h-[42px] px-5
-          bg-transparent border transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]
-          font-mono uppercase
-          hover:scale-[1.02] active:scale-[0.98]
-          ${isLaserActive 
-            ? 'text-laser border-laser shadow-[0_0_16px_rgba(255,42,42,0.35)] bg-white/30' 
-            : 'text-ink border-ink hover:bg-white/50'
-          }
-        `}
-        style={{
-          fontSize: '11px',
-          letterSpacing: '0.06em',
-        }}
-      >
-        {/* Animated indicator dot */}
-        <span 
-          className={`
-            w-2.5 h-2.5 rounded-full transition-all duration-300
-            ${isLaserActive 
-              ? 'bg-laser animate-pulse' 
-              : 'bg-ink/20 group-hover:bg-ink/40'
-            }
-          `} 
-        />
-        Laser
-      </button>
-
-      {/* Sound Toggle - Tactile with rotation animation */}
+      {/* Sound Toggle only - Laser moved to double-click */}
       <button
         onClick={handleSoundToggle}
         onMouseEnter={() => playSFX('hoverLink')}

@@ -112,9 +112,9 @@ export default function CanvasCore() {
       Matter.Bodies.rectangle(canvas.width + wallThickness / 2, canvas.height / 2, wallThickness, canvas.height, { isStatic: true, label: 'rightWall' }),
     ];
 
-    // ── Robot: Physical agent with snappy physics ───────────────────────────
+    // ── Robot: Physical agent constrained to right side ────────────────────────
     const robotBody = Matter.Bodies.rectangle(
-      canvas.width * 0.8, 
+      canvas.width * 0.7,  // Start in right side
       canvas.height - 100, 
       96, 
       96, 
@@ -127,6 +127,11 @@ export default function CanvasCore() {
       }
     );
     robotBodyRef.current = robotBody;
+
+    // Track held pill
+    const heldPillRef = { current: null as Matter.Body | null };
+    const deliveryTargetRef = { current: null as { x: number; y: number; projectId: string | null } | null };
+    const isRoutingRef = { current: false };
 
     Matter.Composite.add(engine.world, [...walls, robotBody]);
 
@@ -288,53 +293,170 @@ export default function CanvasCore() {
       }
     });
 
-    // ── DOM Sync & Aggressive AI (afterUpdate) ───────────────────────────────
+    // ── DOM Sync & Intelligent Organization AI (afterUpdate) ────────────────
     let wanderTime = 0;
+    let idleTime = 0;
     Matter.Events.on(engine, 'afterUpdate', () => {
-      if (!robotBodyRef.current) return;
+      if (!robotBodyRef.current || isDisappointedRef.current) return;
 
       wanderTime += 0.05;
 
-      // Aggressive Token-Chasing AI
-      if (currentTargetRef.current.type === 'idle' && !isDisappointedRef.current) {
-        // Find all unsorted tokens
-        const unsortedTokens = activeTokensRef.current.filter(
-          token => !sortedTokensRef.current.has(token)
+      // Constrain robot to RIGHT SIDE ONLY (40% to 100% width)
+      const rightSideStart = canvas.width * 0.4;
+      if (robotBodyRef.current.position.x < rightSideStart) {
+        Matter.Body.setPosition(robotBodyRef.current, {
+          x: rightSideStart + 50,
+          y: robotBodyRef.current.position.y
+        });
+      }
+
+      // If holding a pill, attach it to robot's bottom
+      if (heldPillRef.current) {
+        const attachX = robotBodyRef.current.position.x;
+        const attachY = robotBodyRef.current.position.y + 60; // Below robot
+        Matter.Body.setPosition(heldPillRef.current, { x: attachX, y: attachY });
+        Matter.Body.setVelocity(heldPillRef.current, { x: 0, y: 0 });
+        Matter.Body.setAngle(heldPillRef.current, 0); // Keep upright
+      }
+
+      // ALWAYS chase tokens if they exist (ignore state machine)
+      const unsortedTokens = activeTokensRef.current.filter(
+        token => !sortedTokensRef.current.has(token) && token !== heldPillRef.current
+      );
+
+      if (unsortedTokens.length > 0 && !isLaserActiveRef.current) {
+        idleTime = 0; // Reset idle timer
+        
+        // Find closest token by distance
+        let closestToken = unsortedTokens[0];
+        let minDistance = Math.hypot(
+          closestToken.position.x - robotBodyRef.current.position.x,
+          closestToken.position.y - robotBodyRef.current.position.y
         );
 
-        if (unsortedTokens.length > 0) {
-          // Find closest token
-          let closestToken = unsortedTokens[0];
-          let minDistance = Math.abs(closestToken.position.x - robotBodyRef.current.position.x);
-
-          for (const token of unsortedTokens) {
-            const distance = Math.abs(token.position.x - robotBodyRef.current.position.x);
-            if (distance < minDistance) {
-              minDistance = distance;
-              closestToken = token;
-            }
+        for (const token of unsortedTokens) {
+          const distance = Math.hypot(
+            token.position.x - robotBodyRef.current.position.x,
+            token.position.y - robotBodyRef.current.position.y
+          );
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestToken = token;
           }
+        }
 
-          // Apply aggressive force toward closest token
+        // If close enough, pick up the pill
+        if (minDistance < 80 && !heldPillRef.current) {
+          heldPillRef.current = closestToken;
+          playSFX('dropToken');
+          console.log('[Robot] Picked up pill:', closestToken.label);
+        } else if (!heldPillRef.current) {
+          // Apply VERY STRONG force toward closest token (FASTER)
           const dx = closestToken.position.x - robotBodyRef.current.position.x;
-          const forceX = dx * 0.0008; // Strong push
-          Matter.Body.applyForce(robotBodyRef.current, robotBodyRef.current.position, {
-            x: forceX,
-            y: 0
-          });
+          const dy = closestToken.position.y - robotBodyRef.current.position.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance > 0) {
+            const forceStrength = 0.006; // DOUBLED from 0.003
+            Matter.Body.applyForce(robotBodyRef.current, robotBodyRef.current.position, {
+              x: (dx / distance) * forceStrength,
+              y: (dy / distance) * forceStrength
+            });
+          }
+        }
+      } else if (!isLaserActiveRef.current && !heldPillRef.current) {
+        // No tokens and not holding anything: idle/sleep
+        idleTime += 0.05;
+        
+        if (idleTime > 5) {
+          // Sleep mode - trigger sleeping animation via event
+          window.dispatchEvent(new CustomEvent('ROBOT_EMOTION', { detail: 'sleep' }));
         } else {
-          // No tokens: energetic wander
+          // Gentle wander
           Matter.Body.setVelocity(robotBodyRef.current, {
-            x: Math.sin(wanderTime) * 3,
+            x: Math.sin(wanderTime) * 2, // Slower when idle
             y: robotBodyRef.current.velocity.y
           });
+        }
+      } else if (heldPillRef.current) {
+        idleTime = 0;
+        
+        // Holding a pill: determine delivery destination once, then navigate
+        if (!deliveryTargetRef.current && !isRoutingRef.current) {
+          isRoutingRef.current = true;
+          const pillLabel = heldPillRef.current.label;
+          
+          routeToken(pillLabel)
+            .then((matchedProjectId) => {
+              if (matchedProjectId) {
+                // Matched! Deliver to sidebar (left edge, project position)
+                deliveryTargetRef.current = {
+                  x: canvas.width * 0.05,
+                  y: 200,
+                  projectId: matchedProjectId
+                };
+                console.log('[Robot] Routing pill to project:', matchedProjectId);
+              } else {
+                // No match: take to trash can (bottom-right corner)
+                deliveryTargetRef.current = {
+                  x: canvas.width * 0.9,
+                  y: canvas.height * 0.9,
+                  projectId: null
+                };
+                console.log('[Robot] Routing pill to trash');
+              }
+              isRoutingRef.current = false;
+            })
+            .catch((err) => {
+              console.error('[Robot] Routing failed:', err);
+              // On error, send to trash
+              deliveryTargetRef.current = {
+                x: canvas.width * 0.9,
+                y: canvas.height * 0.9,
+                projectId: null
+              };
+              isRoutingRef.current = false;
+            });
+        } else if (deliveryTargetRef.current && !isRoutingRef.current) {
+          // Navigate to delivery target
+          const dx = deliveryTargetRef.current.x - robotBodyRef.current.position.x;
+          const dy = deliveryTargetRef.current.y - robotBodyRef.current.position.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          const arrivalThreshold = deliveryTargetRef.current.projectId ? 150 : 100;
+          
+          if (distance < arrivalThreshold) {
+            // Arrived! Complete the delivery
+            if (deliveryTargetRef.current.projectId) {
+              dispatchRobotDelivery(deliveryTargetRef.current.projectId, [heldPillRef.current.label]);
+              playSFX('clickOpen');
+              console.log('[Robot] Delivered pill to project:', deliveryTargetRef.current.projectId);
+            } else {
+              playSFX('crunch');
+              console.log('[Robot] Trashed non-matching pill:', heldPillRef.current.label);
+            }
+            
+            // Remove pill from world
+            Matter.Composite.remove(engine.world, heldPillRef.current);
+            const idx = activeTokensRef.current.indexOf(heldPillRef.current);
+            if (idx > -1) activeTokensRef.current.splice(idx, 1);
+            
+            // Reset state
+            heldPillRef.current = null;
+            deliveryTargetRef.current = null;
+          } else {
+            // Move toward target
+            Matter.Body.applyForce(robotBodyRef.current, robotBodyRef.current.position, {
+              x: (dx / distance) * 0.004,
+              y: (dy / distance) * 0.004
+            });
+          }
         }
       }
 
       // Sync DOM to Physics Body
       const robotDOM = document.getElementById('pixel-robot-agent');
       if (robotDOM) {
-        // Subtract half the width/height (48px) to center the sprite on the physics body
         const x = robotBodyRef.current.position.x - 48;
         const y = robotBodyRef.current.position.y - 48;
         robotDOM.style.transform = `translate(${x}px, ${y}px)`;
@@ -381,6 +503,17 @@ export default function CanvasCore() {
     const render = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Draw trash can indicator (bottom-right corner)
+      const trashX = canvas.width * 0.9;
+      const trashY = canvas.height * 0.9;
+      
+      ctx.save();
+      ctx.font = '32px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🗑️', trashX, trashY);
+      ctx.restore();
+
       const bodies = Matter.Composite.allBodies(engine.world);
 
       bodies.forEach((body) => {
@@ -398,17 +531,17 @@ export default function CanvasCore() {
         ctx.translate(position.x, position.y);
         ctx.rotate(angle);
 
-        // Measure text for pill dimensions using DM Mono
-        ctx.font = '9px DM Mono, monospace';
+        // Measure text for pill dimensions using DM Mono 11px
+        ctx.font = '11px DM Mono, monospace';
         const textMetrics = ctx.measureText(body.label.toUpperCase());
         const textWidth = textMetrics.width;
         
-        const markerRadius = 4; // 4px outlined circle before text
-        const markerGap = 8; // Gap between marker and text
-        const pillPadding = 14; // Horizontal padding
+        const markerRadius = 5; // Larger marker
+        const markerGap = 10; // More spacing
+        const pillPadding = 16; // More padding
         const pillWidth = markerRadius * 2 + markerGap + textWidth + pillPadding * 2;
-        const pillHeight = 28;
-        const pillRadius = 14; // Fully rounded pill
+        const pillHeight = 34; // Taller
+        const pillRadius = 17; // Larger radius
 
         // Draw rounded rectangle (pill shape) - White background, 1px solid
         ctx.beginPath();
@@ -429,10 +562,10 @@ export default function CanvasCore() {
         ctx.lineWidth = 1;
         ctx.stroke();
 
-        // Draw text (DM Mono, 9px)
+        // Draw text (DM Mono, 11px)
         const textX = markerX + markerRadius + markerGap;
         ctx.fillStyle = isSorted ? 'rgba(28,28,28,0.4)' : '#1C1C1C';
-        ctx.font = '9px DM Mono, monospace';
+        ctx.font = '11px DM Mono, monospace';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
         ctx.fillText(body.label.toUpperCase(), textX, 0);
@@ -450,20 +583,22 @@ export default function CanvasCore() {
       const event = e as CustomEvent<SpawnTokenPayload>;
       const keyword = event.detail.keyword;
 
-      // Measure text width accurately using DM Mono 9px
-      ctx.font = '9px DM Mono, monospace';
+      // Measure text width accurately using DM Mono 11px (LARGER)
+      ctx.font = '11px DM Mono, monospace';
       const textMetrics = ctx.measureText(keyword.toUpperCase());
       const textWidth = textMetrics.width;
 
-      const markerRadius = 4;
-      const markerGap = 8;
-      const pillPadding = 14;
+      const markerRadius = 5;
+      const markerGap = 10;
+      const pillPadding = 16;
       const bodyWidth = markerRadius * 2 + markerGap + textWidth + pillPadding * 2;
-      const bodyHeight = 28;
+      const bodyHeight = 34; // Taller for better readability
 
-      // Random horizontal variance to prevent vertical stacking
-      const spawnX = canvas.width / 2 + (Math.random() * 200 - 100);
-      const spawnY = canvas.height / 2 + (Math.random() * 200 - 100);
+      // Spawn across the ENTIRE right side (40% to 95% width, 10% to 90% height)
+      const rightSideStart = canvas.width * 0.4; // After sidebar
+      const rightSideEnd = canvas.width * 0.95; // Near edge
+      const spawnX = rightSideStart + Math.random() * (rightSideEnd - rightSideStart);
+      const spawnY = canvas.height * 0.1 + Math.random() * (canvas.height * 0.8);
 
       const newBody = Matter.Bodies.rectangle(spawnX, spawnY, bodyWidth, bodyHeight, {
         friction: 0.3,
@@ -471,16 +606,16 @@ export default function CanvasCore() {
         restitution: 0.2,
         density: 0.001,
         label: keyword,
-        chamfer: { radius: 14 }, // Fully rounded pill physics
+        chamfer: { radius: 17 }, // Fully rounded pill physics
       });
 
-      // Random initial rotation for natural scatter
-      Matter.Body.setAngle(newBody, Math.random() * Math.PI);
+      // DO NOT rotate - spawn upright for readability
+      Matter.Body.setAngle(newBody, 0);
 
-      // Scatter impulse
+      // Gentle scatter impulse (mostly horizontal)
       Matter.Body.applyForce(newBody, newBody.position, {
-        x: (Math.random() - 0.5) * 0.0015,
-        y: (Math.random() - 0.5) * 0.0015,
+        x: (Math.random() - 0.5) * 0.001,
+        y: (Math.random() - 0.5) * 0.0005,
       });
 
       Matter.Composite.add(engine.world, newBody);
