@@ -21,6 +21,16 @@ body {
   font-family: var(--font-mono);
 }
 
+/* Hide scrollbar while maintaining scroll functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
+
 /* Half-Pull Drawer Animation */
 @keyframes slideOut {
   from {
@@ -50,4 +60,3 @@ body {
 .animate-slideInFromLeft {
   animation: slideInFromLeft 0.3s ease-out;
 }
-

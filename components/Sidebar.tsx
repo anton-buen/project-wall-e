@@ -33,7 +33,7 @@ export default function Sidebar({ entries, selectedProjectId, onToggleProject, o
   }, [entries]);
 
   return (
-    <aside className="relative w-full h-full flex flex-col bg-[#FAF9F6] border-r border-[#1C1C1C] overflow-visible z-30">
+    <aside className="relative w-full h-full flex flex-col bg-[#FAF9F6] overflow-visible z-30">
       {/* INTRODUCTION - Human-centered header with breathing room */}
       <div className="px-10 pt-12 pb-10 border-b border-[#1C1C1C]">
         {/* Name - Large, confident */}
@@ -107,8 +107,8 @@ export default function Sidebar({ entries, selectedProjectId, onToggleProject, o
         </p>
       </section>
 
-      {/* LEDGER LIST - NO OVERFLOW WRAPPER */}
-      <div className="flex-1">
+      {/* LEDGER LIST - Scrollable without visible scrollbar, allows horizontal overflow for pull-out */}
+      <div className="flex-1 overflow-y-auto overflow-x-visible scrollbar-hide">
         {entries.length === 0 ? (
           <div className="px-10 py-6">
             <p className="font-mono text-[#6F6D68] text-[11px]">

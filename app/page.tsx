@@ -116,8 +116,8 @@ export default function Home() {
 
       {/* Main Layout: 40% Ledger | 60% Canvas - Better balance */}
       <div className="relative z-10 flex w-full h-full">
-        {/* LEFT: The Ledger Sidebar (40%) - More breathing room */}
-        <div className="w-[40%] h-full bg-[#FAF9F6]">
+        {/* LEFT: The Ledger Sidebar (40%) - More breathing room, allows overflow for pull-out effect */}
+        <div className="w-[40%] h-full bg-[#FAF9F6] relative overflow-visible">
           <Sidebar 
             entries={entries} 
             selectedProjectId={expandedProjectId}
@@ -128,7 +128,7 @@ export default function Home() {
 
         {/* RIGHT: The Canvas Area (60%) - Purposeful workspace - TRANSPARENT for physics */}
         <div 
-          className="relative w-[60%] h-full bg-transparent cursor-crosshair"
+          className="relative w-[60%] h-full bg-transparent cursor-crosshair border-l border-[#1C1C1C]"
           onDoubleClick={handleCanvasDoubleClick}
         >
           {/* Laser indicator */}
