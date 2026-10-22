@@ -1,0 +1,53 @@
+/* Import fonts first */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
+
+@import "tailwindcss";
+
+@theme inline {
+  --color-canvas: #FAF9F6;
+  --color-ink: #1C1C1C;
+  --color-white: #FFFFFF;
+  --color-muted: #6F6D68;
+  --color-hover: #F4F2ED;
+  --color-laser: #FF2A2A;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-mono: 'DM Mono', 'Courier New', monospace;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+}
+
+/* Half-Pull Drawer Animation */
+@keyframes slideOut {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideOut {
+  animation: slideOut 0.2s ease-out;
+}
+
+/* Project Sheet Slide Animation */
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-101%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slideInFromLeft {
+  animation: slideInFromLeft 0.3s ease-out;
+}
+
