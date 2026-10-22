@@ -184,5 +184,3 @@ MIT
 **Antonio Buenafe** ([@anton-buen](https://github.com/anton-buen))
 
 ---
-
-Built with ❤️ and physics engines
